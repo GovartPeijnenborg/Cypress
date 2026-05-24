@@ -25,30 +25,35 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 /**
- * Visits the store homepage and bypasses the Shopify password protection page
- * if one is present. Safe to call at the start of every test — if no password
- * gate is found the command simply continues after the visit.
+ * Bypasses the Shopify storefront password gate.
+ * Reads SHOPIFY_PASSWORD from Cypress.env() — set via cypress.env.json locally
+ * or the SHOPIFY_PASSWORD GitHub Actions secret in CI.
+ * Fails immediately with a clear message if the value is missing or empty,
+ * preventing a confusing cy.type(undefined) error downstream.
  *
  * Usage:
  *   beforeEach(() => { cy.bypassShopifyPassword() })
  */
 Cypress.Commands.add('bypassShopifyPassword', () => {
-  cy.visit('/')
+  const password = Cypress.env('SHOPIFY_PASSWORD')
 
-  // Check for a password input without failing if it is absent
-  cy.get('body').then(($body) => {
-    const passwordSelector = 'input[type="password"], #password'
-    if ($body.find(passwordSelector).length > 0) {
-      cy.get(passwordSelector)
-        .first()
-        .type(Cypress.env('SHOPIFY_PASSWORD'), { log: false })
+  // Guard: fail fast with a readable message rather than a cryptic type() error
+  expect(
+    password,
+    'SHOPIFY_PASSWORD must be set — add it to cypress.env.json locally or the SHOPIFY_PASSWORD GitHub Actions secret in CI'
+  ).to.be.a('string').and.not.be.empty
 
-      // Submit via the form so it works regardless of button selector
-      cy.get(passwordSelector).first().closest('form').submit()
+  cy.visit('/password')
 
-      // Wait for the storefront to finish loading after the redirect
-      cy.location('pathname').should('not.include', 'password')
-      cy.get('body').should('be.visible')
-    }
-  })
+  cy.get('input[type="password"], input[name="password"]')
+    .first()
+    .should('be.visible')
+    .clear()
+    .type(password, { log: false })
+
+  cy.get('form').first().submit()
+
+  // Wait for the storefront to finish loading after the redirect
+  cy.location('pathname').should('not.include', 'password')
+  cy.get('body').should('be.visible')
 })
