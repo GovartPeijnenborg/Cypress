@@ -25,4 +25,4 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           STORE_URL: ${{ secrets.SHOPIFY_STORE_URL }}
           SHOPIFY_PASSWORD: ${{ secrets.SHOPIFY_PASSWORD }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
