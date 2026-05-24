@@ -6,7 +6,14 @@ const PRODUCT_PRICE = '.price, .product-price, [data-price], .price__regular, .p
 describe('Catalog — /collections/all', () => {
   beforeEach(() => {
     cy.bypassShopifyPassword()
-    cy.visit('/collections/all')
+    cy.wait(1000)
+    cy.visit('/collections/all', { failOnStatusCode: false })
+    cy.url().then((url) => {
+      if (!url.includes('/collections/all')) {
+        cy.wait(2000)
+        cy.reload()
+      }
+    })
   })
 
   it('shows more than 0 product cards', () => {

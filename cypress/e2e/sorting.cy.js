@@ -1,5 +1,5 @@
 // Common Shopify sort-by selectors
-const SORT_SELECT = 'select[name="sort_by"], #SortBy, .collection-sort select, select.sort-by'
+const SORT_SELECT = 'select[id*="SortBy"]'
 const PRODUCT_TITLE = '.card__heading, .product-card__title, .product-item__title, h2, h3'
 const PRICE_LOW_TO_HIGH = 'price-ascending'
 
@@ -15,7 +15,8 @@ describe('Sorting — /collections/all', () => {
     cy.get(PRODUCT_TITLE)
       .each(($el) => { titlesBefore.push($el.text().trim()) })
       .then(() => {
-        cy.get(SORT_SELECT).select(PRICE_LOW_TO_HIGH)
+        cy.get(SORT_SELECT).first().select(PRICE_LOW_TO_HIGH)
+        cy.wait(1500)
 
         // Wait for the page to re-render with the new sort order
         cy.url().should('include', 'sort_by=price-ascending')
