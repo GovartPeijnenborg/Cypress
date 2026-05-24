@@ -11,8 +11,12 @@ describe('Product Detail Page', () => {
   })
 
   it('opens the first product and shows title, price and at least one image', () => {
-    // Click the first product card link
-    cy.get(PRODUCT_CARD_LINK).first().click()
+    // Grab the href directly to avoid display:none visibility issues in Dawn theme
+    cy.get('a.full-unstyled-link').first()
+      .invoke('attr', 'href')
+      .then((href) => {
+        cy.visit(href)
+      })
 
     // Title is visible
     cy.get(PRODUCT_TITLE).first().should('be.visible')
